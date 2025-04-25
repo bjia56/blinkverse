@@ -32,7 +32,7 @@ jobs:
           arch: ${{ matrix.arch }}
           release: ${{ matrix.os_version }}
           prepare: |
-            pkg_add cmake gmake git
+            pkg_add git gmake
 
       - name: Build Blink
         shell: openbsd {0}
@@ -51,3 +51,44 @@ jobs:
         with:
           name: blink-openbsd${{ matrix.os_version }}-${{ matrix.arch }}
           path: ./blink/blink-openbsd${{ matrix.os_version }}-${{ matrix.arch }}
+
+  build_netbsd:
+    name: Build NetBSD ${{ matrix.os_version }} ${{ matrix.arch }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x86_64, aarch64]
+        os_version: [10.0, 10.1]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Start VM
+        uses: vmactions/netbsd-vm@v1
+        with:
+          sync: nfs
+          arch: ${{ matrix.arch }}
+          release: ${{ matrix.os_version }}
+          prepare: |
+            /usr/sbin/pkg_add git gmake
+
+      - name: Build Blink
+        shell: netbsd {0}
+        run: |
+          cd ${{ github.workspace }}
+          git config --global --add safe.directory ${{ github.workspace}}/blink
+          git clone https://github.com/bjia56/blink.git
+          cd blink
+          git checkout ${{ env.blink_version }}
+          ./configure
+          gmake -j4
+          /usr/sbin/paxctl +m o/blink/blink
+          cp o/blink/blink blink-netbsd${{ matrix.os_version }}-${{ matrix.arch }}
+
+      - name: Upload Blink
+        uses: actions/upload-artifact@v4
+        with:
+          name: blink-netbsd${{ matrix.os_version }}-${{ matrix.arch }}
+          path: ./blink/blink-netbsd${{ matrix.os_version }}-${{ matrix.arch }}
