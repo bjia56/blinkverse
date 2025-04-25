@@ -88,3 +88,41 @@ jobs:
         with:
           name: blink-netbsd${{ matrix.os_version }}-${{ matrix.arch }}
           path: blink-netbsd${{ matrix.os_version }}-${{ matrix.arch }}
+
+  build_freebsd:
+    name: Build FreeBSD ${{ matrix.os_version }} ${{ matrix.arch }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x86_64, aarch64]
+        os_version: ["14.2", "15.0"]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Start VM
+        uses: vmactions/freebsd-vm@v1
+        with:
+          sync: nfs
+          arch: ${{ matrix.arch }}
+          release: ${{ matrix.os_version }}
+          prepare: |
+            pkg install -y git gmake
+
+      - name: Build Blink
+        shell: freebsd {0}
+        run: |
+          git clone https://github.com/bjia56/blink.git
+          cd blink
+          git checkout ${{ env.blink_version }}
+          ./configure
+          gmake -j4
+          cp o/blink/blink ${{ github.workspace }}/blink-freebsd${{ matrix.os_version }}-${{ matrix.arch }}
+
+      - name: Upload Blink
+        uses: actions/upload-artifact@v4
+        with:
+          name: blink-freebsd${{ matrix.os_version }}-${{ matrix.arch }}
+          path: blink-freebsd${{ matrix.os_version }}-${{ matrix.arch }}
