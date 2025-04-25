@@ -37,20 +37,18 @@ jobs:
       - name: Build Blink
         shell: openbsd {0}
         run: |
-          cd ${{ github.workspace }}
-          git config --global --add safe.directory ${{ github.workspace}}/blink
           git clone https://github.com/bjia56/blink.git
           cd blink
           git checkout ${{ env.blink_version }}
           ./configure
           gmake -j4
-          cp o/blink/blink blink-openbsd${{ matrix.os_version }}-${{ matrix.arch }}
+          cp o/blink/blink ${{ github.workspace }}/blink-openbsd${{ matrix.os_version }}-${{ matrix.arch }}
 
       - name: Upload Blink
         uses: actions/upload-artifact@v4
         with:
           name: blink-openbsd${{ matrix.os_version }}-${{ matrix.arch }}
-          path: ./blink/blink-openbsd${{ matrix.os_version }}-${{ matrix.arch }}
+          path: blink-openbsd${{ matrix.os_version }}-${{ matrix.arch }}
 
   build_netbsd:
     name: Build NetBSD ${{ matrix.os_version }} ${{ matrix.arch }}
@@ -77,18 +75,16 @@ jobs:
       - name: Build Blink
         shell: netbsd {0}
         run: |
-          cd ${{ github.workspace }}
-          git config --global --add safe.directory ${{ github.workspace}}/blink
           git clone https://github.com/bjia56/blink.git
           cd blink
           git checkout ${{ env.blink_version }}
           ./configure
           gmake -j4
           /usr/sbin/paxctl +m o/blink/blink
-          cp o/blink/blink blink-netbsd${{ matrix.os_version }}-${{ matrix.arch }}
+          cp o/blink/blink ${{ github.workspace }}/blink-netbsd${{ matrix.os_version }}-${{ matrix.arch }}
 
       - name: Upload Blink
         uses: actions/upload-artifact@v4
         with:
           name: blink-netbsd${{ matrix.os_version }}-${{ matrix.arch }}
-          path: ./blink/blink-netbsd${{ matrix.os_version }}-${{ matrix.arch }}
+          path: blink-netbsd${{ matrix.os_version }}-${{ matrix.arch }}
