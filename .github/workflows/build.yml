@@ -173,7 +173,7 @@ jobs:
           git clone https://github.com/bjia56/blink.git
           cd blink
           git checkout ${{ env.blink_version }}
-          ./configure
+          CC=gcc ./configure
           gmake -j4
           cp o/blink/blink ${{ github.workspace }}/blink-solaris${{ matrix.os_version }}-${{ matrix.arch }}
 
