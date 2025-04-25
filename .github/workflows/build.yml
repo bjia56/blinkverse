@@ -9,7 +9,7 @@ on:
 
 env:
   zig_version: 0.13.0
-  blink_version: 4da95da865a1d3ccdc2e802cccfbddd8507d1c95
+  blink_version: eb99c60e950cd6d7b9e6f1aedeb95ef2690390b5
 
 jobs:
   build_openbsd:
@@ -165,7 +165,7 @@ jobs:
           arch: ${{ matrix.arch }}
           release: ${{ matrix.os_version }}
           prepare: |
-            pkg install -y git gmake gcc
+            pkg install --accept git gmake gcc
 
       - name: Build Blink
         shell: solaris {0}
