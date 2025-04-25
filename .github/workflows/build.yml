@@ -84,7 +84,7 @@ jobs:
           git clone https://github.com/bjia56/blink.git
           cd blink
           git checkout ${{ env.blink_version }}
-          ./configure
+          LDFLAGS="-Wl,--image-base=0x23000000" ./configure
           gmake -j4
           /usr/sbin/paxctl +m o/blink/blink
           cp o/blink/blink ${{ github.workspace }}/blink-netbsd${{ matrix.os_version }}-${{ matrix.arch }}
