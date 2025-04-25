@@ -165,7 +165,7 @@ jobs:
           arch: ${{ matrix.arch }}
           release: ${{ matrix.os_version }}
           prepare: |
-            pkg install --accept git gmake gcc
+            pkg install --accept git gcc
 
       - name: Build Blink
         shell: solaris {0}
