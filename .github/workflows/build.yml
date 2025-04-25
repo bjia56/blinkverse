@@ -44,6 +44,12 @@ jobs:
           gmake -j4
           cp o/blink/blink ${{ github.workspace }}/blink-openbsd${{ matrix.os_version }}-${{ matrix.arch }}
 
+      - name: Check Blink
+        shell: openbsd {0}
+        run: |
+          cd blink
+          gmake check
+
       - name: Upload Blink
         uses: actions/upload-artifact@v4
         with:
@@ -83,6 +89,12 @@ jobs:
           /usr/sbin/paxctl +m o/blink/blink
           cp o/blink/blink ${{ github.workspace }}/blink-netbsd${{ matrix.os_version }}-${{ matrix.arch }}
 
+      - name: Check Blink
+        shell: netbsd {0}
+        run: |
+          cd blink
+          gmake check
+
       - name: Upload Blink
         uses: actions/upload-artifact@v4
         with:
@@ -121,8 +133,58 @@ jobs:
           gmake -j4
           cp o/blink/blink ${{ github.workspace }}/blink-freebsd${{ matrix.os_version }}-${{ matrix.arch }}
 
+      - name: Check Blink
+        shell: freebsd {0}
+        run: |
+          cd blink
+          gmake check
+
       - name: Upload Blink
         uses: actions/upload-artifact@v4
         with:
           name: blink-freebsd${{ matrix.os_version }}-${{ matrix.arch }}
           path: blink-freebsd${{ matrix.os_version }}-${{ matrix.arch }}
+
+  build_solaris:
+    name: Build Solaris ${{ matrix.os_version }} ${{ matrix.arch }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x86_64]
+        os_version: ["11.4"]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Start VM
+        uses: vmactions/solaris-vm@v1
+        with:
+          sync: nfs
+          arch: ${{ matrix.arch }}
+          release: ${{ matrix.os_version }}
+          prepare: |
+            pkg install -y git gmake gcc
+
+      - name: Build Blink
+        shell: solaris {0}
+        run: |
+          git clone https://github.com/bjia56/blink.git
+          cd blink
+          git checkout ${{ env.blink_version }}
+          ./configure
+          gmake -j4
+          cp o/blink/blink ${{ github.workspace }}/blink-solaris${{ matrix.os_version }}-${{ matrix.arch }}
+
+      - name: Check Blink
+        shell: solaris {0}
+        run: |
+          cd blink
+          gmake check
+
+      - name: Upload Blink
+        uses: actions/upload-artifact@v4
+        with:
+          name: blink-solaris${{ matrix.os_version }}-${{ matrix.arch }}
+          path: blink-solaris${{ matrix.os_version }}-${{ matrix.arch }}
