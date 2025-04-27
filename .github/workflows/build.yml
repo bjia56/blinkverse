@@ -9,7 +9,7 @@ on:
 
 env:
   zig_version: 0.13.0
-  blink_version: eb99c60e950cd6d7b9e6f1aedeb95ef2690390b5
+  blink_version: 013bc6422ddf2a9f92df92a255d7dde025d5c886
 
 jobs:
   build_openbsd:
