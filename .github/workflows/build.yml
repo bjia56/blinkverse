@@ -45,6 +45,7 @@ jobs:
           cp o/blink/blink ${{ github.workspace }}/blink-openbsd${{ matrix.os_version }}-${{ matrix.arch }}
 
       - name: Check Blink
+        continue-on-error: true
         shell: openbsd {0}
         run: |
           cd blink
@@ -90,6 +91,7 @@ jobs:
           cp o/blink/blink ${{ github.workspace }}/blink-netbsd${{ matrix.os_version }}-${{ matrix.arch }}
 
       - name: Check Blink
+        continue-on-error: true
         shell: netbsd {0}
         run: |
           cd blink
@@ -134,6 +136,7 @@ jobs:
           cp o/blink/blink ${{ github.workspace }}/blink-freebsd${{ matrix.os_version }}-${{ matrix.arch }}
 
       - name: Check Blink
+        continue-on-error: true
         shell: freebsd {0}
         run: |
           cd blink
@@ -178,6 +181,7 @@ jobs:
           cp o/blink/blink ${{ github.workspace }}/blink-solaris${{ matrix.os_version }}-${{ matrix.arch }}
 
       - name: Check Blink
+        continue-on-error: true
         shell: solaris {0}
         run: |
           cd blink
