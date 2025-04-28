@@ -40,7 +40,7 @@ jobs:
           git clone https://github.com/bjia56/blink.git
           cd blink
           git checkout ${{ env.blink_version }}
-          ./configure
+          ./configure --disable-jit
           gmake -j4
           cp o/blink/blink ${{ github.workspace }}/blink-openbsd${{ matrix.os_version }}-${{ matrix.arch }}
 
