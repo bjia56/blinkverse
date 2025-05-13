@@ -19,7 +19,7 @@ env:
 
 jobs:
   build_openbsd:
-    name: Build OpenBSD ${{ matrix.os_version }} ${{ matrix.arch }} ${{ env.blink_distribution }}
+    name: Build OpenBSD ${{ matrix.os_version }} ${{ matrix.arch }} ${{ inputs.distribution }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -64,7 +64,7 @@ jobs:
           path: blink-${{ env.blink_distribution }}-openbsd${{ matrix.os_version }}-${{ matrix.arch }}
 
   build_netbsd:
-    name: Build NetBSD ${{ matrix.os_version }} ${{ matrix.arch }} ${{ env.blink_distribution }}
+    name: Build NetBSD ${{ matrix.os_version }} ${{ matrix.arch }} ${{ inputs.distribution }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -110,7 +110,7 @@ jobs:
           path: blink-${{ env.blink_distribution }}-netbsd${{ matrix.os_version }}-${{ matrix.arch }}
 
   build_freebsd:
-    name: Build FreeBSD ${{ matrix.os_version }} ${{ matrix.arch }} ${{ env.blink_distribution }}
+    name: Build FreeBSD ${{ matrix.os_version }} ${{ matrix.arch }} ${{ inputs.distribution }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -155,7 +155,7 @@ jobs:
           path: blink-${{ env.blink_distribution }}-freebsd${{ matrix.os_version }}-${{ matrix.arch }}
 
   build_solaris:
-    name: Build Solaris ${{ matrix.os_version }} ${{ matrix.arch }} ${{ env.blink_distribution }}
+    name: Build Solaris ${{ matrix.os_version }} ${{ matrix.arch }} ${{ inputs.distribution }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
