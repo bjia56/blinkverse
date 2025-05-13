@@ -48,7 +48,7 @@ jobs:
           git checkout ${{ env.blink_version }}
           ./configure MODE=${{ env.blink_mode }} --disable-jit
           gmake -j4
-          cp o/blink/blink ${{ github.workspace }}/blink-${{ env.blink_distribution }}-openbsd${{ matrix.os_version }}-${{ matrix.arch }}
+          cp o/${{ env.blink_mode }}/blink/blink ${{ github.workspace }}/blink-${{ env.blink_distribution }}-openbsd${{ matrix.os_version }}-${{ matrix.arch }}
 
       - name: Check Blink
         continue-on-error: true
@@ -94,7 +94,7 @@ jobs:
           bash ./configure MODE=${{ env.blink_mode }}
           gmake -j4
           /usr/sbin/paxctl +m o/blink/blink
-          cp o/blink/blink ${{ github.workspace }}/blink-${{ env.blink_distribution }}-netbsd${{ matrix.os_version }}-${{ matrix.arch }}
+          cp o/${{ env.blink_mode }}/blink/blink ${{ github.workspace }}/blink-${{ env.blink_distribution }}-netbsd${{ matrix.os_version }}-${{ matrix.arch }}
 
       - name: Check Blink
         continue-on-error: true
@@ -139,7 +139,7 @@ jobs:
           git checkout ${{ env.blink_version }}
           ./configure MODE=${{ env.blink_mode }}
           gmake -j4
-          cp o/blink/blink ${{ github.workspace }}/blink-${{ env.blink_distribution }}-freebsd${{ matrix.os_version }}-${{ matrix.arch }}
+          cp o/${{ env.blink_mode }}/blink/blink ${{ github.workspace }}/blink-${{ env.blink_distribution }}-freebsd${{ matrix.os_version }}-${{ matrix.arch }}
 
       - name: Check Blink
         continue-on-error: true
@@ -184,7 +184,7 @@ jobs:
           git checkout ${{ env.blink_version }}
           CC=gcc bash ./configure MODE=${{ env.blink_mode }}
           gmake -j4
-          cp o/blink/blink ${{ github.workspace }}/blink-${{ env.blink_distribution }}-solaris${{ matrix.os_version }}-${{ matrix.arch }}
+          cp o/${{ env.blink_mode }}/blink/blink ${{ github.workspace }}/blink-${{ env.blink_distribution }}-solaris${{ matrix.os_version }}-${{ matrix.arch }}
 
       - name: Check Blink
         continue-on-error: true
