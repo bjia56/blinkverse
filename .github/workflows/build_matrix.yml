@@ -2,6 +2,7 @@ name: Build Blink matrix
 
 on:
   workflow_dispatch:
+  workflow_call:
 
 jobs:
   build_matrix:

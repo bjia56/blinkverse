@@ -1,0 +1,72 @@
+name: Build and Release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  next_tag:
+    name: Determine Next Tag
+    runs-on: ubuntu-latest
+    outputs:
+      next_tag: ${{ steps.set_next_tag.outputs.next_tag }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Get Existing Tags
+        id: get_tags
+        run: |
+          git fetch --tags
+          echo "tags=$(git tag | grep -E '^v[0-9]+' | sort -V)" >> $GITHUB_ENV
+
+      - name: Determine Next Tag
+        id: set_next_tag
+        run: |
+          if [[ -z "${{ env.tags }}" ]]; then
+            echo "next_tag=v1" >> $GITHUB_ENV
+          else
+            latest_tag=$(echo "${{ env.tags }}" | tail -n 1)
+            next_version=$(( ${latest_tag#v} + 1 ))
+            echo "next_tag=v$next_version" >> $GITHUB_ENV
+          fi
+        env:
+          tags: ${{ env.tags }}
+        outputs:
+          next_tag: ${{ env.next_tag }}
+
+  build_artifacts:
+    name: Build Artifacts
+    uses: ./.github/workflows/build_matrix.yml
+
+  create_release:
+    name: Create Release
+    needs: 
+      - next_tag
+      - build_artifacts
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: blink*
+          path: ./artifacts
+          merge-multiple: true
+
+      - name: Create release
+        run: |
+          gh release create ${{ needs.next_tag.outputs.next_tag }} \
+            --title ${{ needs.next_tag.outputs.next_tag }} \
+            --target ${{ github.sha }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload files
+        run: |
+          gh release upload ${{ needs.next_tag.outputs.next_tag }} ./artifacts/*
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
