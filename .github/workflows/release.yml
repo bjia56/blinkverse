@@ -13,26 +13,19 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Get Existing Tags
-        id: get_tags
-        run: |
-          git fetch --tags
-          echo "tags=$(git tag | grep -E '^v[0-9]+' | sort -V)" >> $GITHUB_ENV
-
-      - name: Determine Next Tag
+      - name: Find Next Tag
         id: set_next_tag
         run: |
-          if [[ -z "${{ env.tags }}" ]]; then
-            echo "next_tag=v1" >> $GITHUB_ENV
+          git fetch --tags
+          tags=$(git tag | grep -E '^v[0-9]+' | sort -V)
+
+          if [[ -z "$tags" ]]; then
+            echo "next_tag=v1" >> $GITHUB_OUTPUT
           else
-            latest_tag=$(echo "${{ env.tags }}" | tail -n 1)
+            latest_tag=$(echo "$tags" | tail -n 1)
             next_version=$(( ${latest_tag#v} + 1 ))
-            echo "next_tag=v$next_version" >> $GITHUB_ENV
+            echo "next_tag=v$next_version" >> $GITHUB_OUTPUT
           fi
-        env:
-          tags: ${{ env.tags }}
-        outputs:
-          next_tag: ${{ env.next_tag }}
 
   build_artifacts:
     name: Build Artifacts
