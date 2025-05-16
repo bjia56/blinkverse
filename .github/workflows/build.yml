@@ -29,7 +29,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-    
+
       - name: Set up zig
         uses: mlugg/setup-zig@v1
         with:
@@ -42,7 +42,7 @@ jobs:
 
       - name: Build Blink
         run: |
-          export CC="zig cc -target ${{ matrix.arch }}-linux-musl"
+          export CC="${{ github.workspace }}/zigshim/zig cc -target ${{ matrix.arch }}-linux-musl"
 
           git clone https://github.com/bjia56/blink.git
           cd blink
