@@ -12,7 +12,7 @@ on:
         type: string
 
 env:
-  zig_version: 0.13.0
+  zig_version: 0.14.0
   blink_version: 98146fd2318c37aca8fc3aac746cdc351c225ce9
   blink_distribution: ${{ inputs.distribution || 'full' }}
   blink_mode: ${{ inputs.distribution != 'full' && inputs.distribution || '' }}
@@ -24,7 +24,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        arch: [x86_64, aarch64]
+        arch: [x86_64, aarch64, riscv64, s390x, mips64el, powerpc64le]
 
     steps:
       - name: Checkout
@@ -47,7 +47,7 @@ jobs:
           git clone https://github.com/bjia56/blink.git
           cd blink
           git checkout ${{ env.blink_version }}
-          ./configure MODE=${{ env.blink_mode }}
+          ./configure MODE=${{ env.blink_mode }} ${{ (matrix.arch != 'x86_64' && matrix.arch != 'aarch64') && '--disable-jit' || '' }}
           make -j4
           cp o/${{ env.blink_mode }}/blink/blink ${{ github.workspace }}/blink-${{ env.blink_distribution }}-linux-${{ matrix.arch }}
           cp o/${{ env.blink_mode }}/blink/blinkenlights ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-linux-${{ matrix.arch }}
