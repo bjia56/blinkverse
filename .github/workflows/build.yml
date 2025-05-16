@@ -18,6 +18,58 @@ env:
   blink_mode: ${{ inputs.distribution != 'full' && inputs.distribution || '' }}
 
 jobs:
+  build_linux:
+    name: Build Linux ${{ matrix.arch }} ${{ inputs.distribution }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x86_64, aarch64]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+    
+      - name: Set up zig
+        uses: mlugg/setup-zig@v1
+        with:
+          version: ${{ env.zig_version }}
+
+      - name: Install interpreters
+        run: |
+          sudo apt update
+          sudo apt -y install qemu-user-static
+
+      - name: Build Blink
+        run: |
+          export CC="zig cc -target ${{ matrix.arch }}-linux-musl"
+
+          git clone https://github.com/bjia56/blink.git
+          cd blink
+          git checkout ${{ env.blink_version }}
+          ./configure MODE=${{ env.blink_mode }}
+          make -j4
+          cp o/${{ env.blink_mode }}/blink/blink ${{ github.workspace }}/blink-${{ env.blink_distribution }}-linux-${{ matrix.arch }}
+          cp o/${{ env.blink_mode }}/blink/blinkenlights ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-linux-${{ matrix.arch }}
+
+      - name: Check Blink
+        continue-on-error: true
+        run: |
+          cd blink
+          make check
+
+      - name: Upload Blink
+        uses: actions/upload-artifact@v4
+        with:
+          name: blink-${{ env.blink_distribution }}-linux-${{ matrix.arch }}
+          path: blink-${{ env.blink_distribution }}-linux-${{ matrix.arch }}
+
+      - name: Upload Blinkenlights
+        uses: actions/upload-artifact@v4
+        with:
+          name: blinkenlights-${{ env.blink_distribution }}-linux-${{ matrix.arch }}
+          path: blinkenlights-${{ env.blink_distribution }}-linux-${{ matrix.arch }}
+
   build_openbsd:
     name: Build OpenBSD ${{ matrix.os_version }} ${{ matrix.arch }} ${{ inputs.distribution }}
     runs-on: ubuntu-latest
