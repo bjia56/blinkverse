@@ -27,13 +27,16 @@ jobs:
             echo "next_tag=v$next_version" >> $GITHUB_OUTPUT
           fi
 
+      - name: Show Next Tag
+        run: echo "Next tag is ${{ steps.set_next_tag.outputs.next_tag }}"
+
   build_artifacts:
     name: Build Artifacts
     uses: ./.github/workflows/build_matrix.yml
 
   create_release:
     name: Create Release
-    needs: 
+    needs:
       - next_tag
       - build_artifacts
     runs-on: ubuntu-latest
