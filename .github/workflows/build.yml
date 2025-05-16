@@ -24,7 +24,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        arch: [x86_64, aarch64, riscv64, s390x, mips64el, powerpc64le]
+        arch: [x86_64, aarch64, riscv64, s390x, powerpc64le]
 
     steps:
       - name: Checkout
