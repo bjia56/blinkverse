@@ -40,6 +40,11 @@ jobs:
           sudo apt update
           sudo apt -y install qemu-user-static
 
+      - name: Install cross compilers
+        if: ${{ matrix.arch != 'x86_64' }}
+        run: |
+          sudo apt install -y gcc-${{ matrix.arch }}-linux-gnu
+
       - name: Build Blink
         run: |
           export CC="${{ github.workspace }}/zigshim/zig cc -target ${{ matrix.arch }}-linux-musl"
@@ -49,8 +54,16 @@ jobs:
           git checkout ${{ env.blink_version }}
           ./configure MODE=${{ env.blink_mode }} ${{ (matrix.arch != 'x86_64' && matrix.arch != 'aarch64') && '--disable-jit' || '' }}
           make -j4
+
+          # Rename for output
           cp o/${{ env.blink_mode }}/blink/blink ${{ github.workspace }}/blink-${{ env.blink_distribution }}-linux-${{ matrix.arch }}
           cp o/${{ env.blink_mode }}/blink/blinkenlights ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-linux-${{ matrix.arch }}
+
+          # Create stripped copy
+          cp ${{ github.workspace }}/blink-${{ env.blink_distribution }}-linux-${{ matrix.arch }} ${{ github.workspace }}/blink-${{ env.blink_distribution }}-linux-${{ matrix.arch }}-stripped
+          cp ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-linux-${{ matrix.arch }} ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-linux-${{ matrix.arch }}-stripped
+          ${{ matrix.arch }}-linux-gnu-strip ${{ github.workspace }}/blink-${{ env.blink_distribution }}-linux-${{ matrix.arch }}-stripped
+          ${{ matrix.arch }}-linux-gnu-strip ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-linux-${{ matrix.arch }}-stripped
 
       - name: Check Blink
         continue-on-error: true
@@ -62,13 +75,13 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: blink-${{ env.blink_distribution }}-linux-${{ matrix.arch }}
-          path: blink-${{ env.blink_distribution }}-linux-${{ matrix.arch }}
+          path: blink-${{ env.blink_distribution }}-linux-${{ matrix.arch }}*
 
       - name: Upload Blinkenlights
         uses: actions/upload-artifact@v4
         with:
           name: blinkenlights-${{ env.blink_distribution }}-linux-${{ matrix.arch }}
-          path: blinkenlights-${{ env.blink_distribution }}-linux-${{ matrix.arch }}
+          path: blinkenlights-${{ env.blink_distribution }}-linux-${{ matrix.arch }}*
 
   build_openbsd:
     name: Build OpenBSD ${{ matrix.os_version }} ${{ matrix.arch }} ${{ inputs.distribution }}
@@ -100,8 +113,16 @@ jobs:
           git checkout ${{ env.blink_version }}
           ./configure MODE=${{ env.blink_mode }} --disable-jit
           gmake -j4
+
+          # Rename for output
           cp o/${{ env.blink_mode }}/blink/blink ${{ github.workspace }}/blink-${{ env.blink_distribution }}-openbsd${{ matrix.os_version }}-${{ matrix.arch }}
           cp o/${{ env.blink_mode }}/blink/blinkenlights ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-openbsd${{ matrix.os_version }}-${{ matrix.arch }}
+
+          # Create stripped copy
+          cp ${{ github.workspace }}/blink-${{ env.blink_distribution }}-openbsd${{ matrix.os_version }}-${{ matrix.arch }} ${{ github.workspace }}/blink-${{ env.blink_distribution }}-openbsd${{ matrix.os_version }}-${{ matrix.arch }}-stripped
+          cp ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-openbsd${{ matrix.os_version }}-${{ matrix.arch }} ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-openbsd${{ matrix.os_version }}-${{ matrix.arch }}-stripped
+          strip ${{ github.workspace }}/blink-${{ env.blink_distribution }}-openbsd${{ matrix.os_version }}-${{ matrix.arch }}-stripped
+          strip ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-openbsd${{ matrix.os_version }}-${{ matrix.arch }}-stripped
 
       - name: Check Blink
         continue-on-error: true
@@ -114,13 +135,13 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: blink-${{ env.blink_distribution }}-openbsd${{ matrix.os_version }}-${{ matrix.arch }}
-          path: blink-${{ env.blink_distribution }}-openbsd${{ matrix.os_version }}-${{ matrix.arch }}
+          path: blink-${{ env.blink_distribution }}-openbsd${{ matrix.os_version }}-${{ matrix.arch }}*
 
       - name: Upload Blinkenlights
         uses: actions/upload-artifact@v4
         with:
           name: blinkenlights-${{ env.blink_distribution }}-openbsd${{ matrix.os_version }}-${{ matrix.arch }}
-          path: blinkenlights-${{ env.blink_distribution }}-openbsd${{ matrix.os_version }}-${{ matrix.arch }}
+          path: blinkenlights-${{ env.blink_distribution }}-openbsd${{ matrix.os_version }}-${{ matrix.arch }}*
 
   build_netbsd:
     name: Build NetBSD ${{ matrix.os_version }} ${{ matrix.arch }} ${{ inputs.distribution }}
@@ -152,10 +173,20 @@ jobs:
           git checkout ${{ env.blink_version }}
           bash ./configure MODE=${{ env.blink_mode }}
           gmake -j4
+
+          # Relax PaX restrictions for JIT
           /usr/sbin/paxctl +m o/${{ env.blink_mode }}/blink/blink
           /usr/sbin/paxctl +m o/${{ env.blink_mode }}/blink/blinkenlights
+
+          # Rename for output
           cp o/${{ env.blink_mode }}/blink/blink ${{ github.workspace }}/blink-${{ env.blink_distribution }}-netbsd${{ matrix.os_version }}-${{ matrix.arch }}
           cp o/${{ env.blink_mode }}/blink/blinkenlights ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-netbsd${{ matrix.os_version }}-${{ matrix.arch }}
+
+          # Create stripped copy
+          cp ${{ github.workspace }}/blink-${{ env.blink_distribution }}-netbsd${{ matrix.os_version }}-${{ matrix.arch }} ${{ github.workspace }}/blink-${{ env.blink_distribution }}-netbsd${{ matrix.os_version }}-${{ matrix.arch }}-stripped
+          cp ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-netbsd${{ matrix.os_version }}-${{ matrix.arch }} ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-netbsd${{ matrix.os_version }}-${{ matrix.arch }}-stripped
+          strip ${{ github.workspace }}/blink-${{ env.blink_distribution }}-netbsd${{ matrix.os_version }}-${{ matrix.arch }}-stripped
+          strip ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-netbsd${{ matrix.os_version }}-${{ matrix.arch }}-stripped
 
       - name: Check Blink
         continue-on-error: true
@@ -168,13 +199,13 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: blink-${{ env.blink_distribution }}-netbsd${{ matrix.os_version }}-${{ matrix.arch }}
-          path: blink-${{ env.blink_distribution }}-netbsd${{ matrix.os_version }}-${{ matrix.arch }}
+          path: blink-${{ env.blink_distribution }}-netbsd${{ matrix.os_version }}-${{ matrix.arch }}*
 
       - name: Upload Blinkenlights
         uses: actions/upload-artifact@v4
         with:
           name: blinkenlights-${{ env.blink_distribution }}-netbsd${{ matrix.os_version }}-${{ matrix.arch }}
-          path: blinkenlights-${{ env.blink_distribution }}-netbsd${{ matrix.os_version }}-${{ matrix.arch }}
+          path: blinkenlights-${{ env.blink_distribution }}-netbsd${{ matrix.os_version }}-${{ matrix.arch }}*
 
   build_freebsd:
     name: Build FreeBSD ${{ matrix.os_version }} ${{ matrix.arch }} ${{ inputs.distribution }}
@@ -206,8 +237,16 @@ jobs:
           git checkout ${{ env.blink_version }}
           ./configure MODE=${{ env.blink_mode }}
           gmake -j4
+
+          # Rename for output
           cp o/${{ env.blink_mode }}/blink/blink ${{ github.workspace }}/blink-${{ env.blink_distribution }}-freebsd${{ matrix.os_version }}-${{ matrix.arch }}
           cp o/${{ env.blink_mode }}/blink/blinkenlights ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-freebsd${{ matrix.os_version }}-${{ matrix.arch }}
+
+          # Create stripped copy
+          cp ${{ github.workspace }}/blink-${{ env.blink_distribution }}-freebsd${{ matrix.os_version }}-${{ matrix.arch }} ${{ github.workspace }}/blink-${{ env.blink_distribution }}-freebsd${{ matrix.os_version }}-${{ matrix.arch }}-stripped
+          cp ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-freebsd${{ matrix.os_version }}-${{ matrix.arch }} ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-freebsd${{ matrix.os_version }}-${{ matrix.arch }}-stripped
+          strip ${{ github.workspace }}/blink-${{ env.blink_distribution }}-freebsd${{ matrix.os_version }}-${{ matrix.arch }}-stripped
+          strip ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-freebsd${{ matrix.os_version }}-${{ matrix.arch }}-stripped
 
       - name: Check Blink
         continue-on-error: true
@@ -220,13 +259,13 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: blink-${{ env.blink_distribution }}-freebsd${{ matrix.os_version }}-${{ matrix.arch }}
-          path: blink-${{ env.blink_distribution }}-freebsd${{ matrix.os_version }}-${{ matrix.arch }}
+          path: blink-${{ env.blink_distribution }}-freebsd${{ matrix.os_version }}-${{ matrix.arch }}*
 
       - name: Upload Blinkenlights
         uses: actions/upload-artifact@v4
         with:
           name: blinkenlights-${{ env.blink_distribution }}-freebsd${{ matrix.os_version }}-${{ matrix.arch }}
-          path: blinkenlights-${{ env.blink_distribution }}-freebsd${{ matrix.os_version }}-${{ matrix.arch }}
+          path: blinkenlights-${{ env.blink_distribution }}-freebsd${{ matrix.os_version }}-${{ matrix.arch }}*
 
   build_solaris:
     name: Build Solaris ${{ matrix.os_version }} ${{ matrix.arch }} ${{ inputs.distribution }}
@@ -258,8 +297,16 @@ jobs:
           git checkout ${{ env.blink_version }}
           CC=gcc bash ./configure MODE=${{ env.blink_mode }}
           gmake -j4
+
+          # Rename for output
           cp o/${{ env.blink_mode }}/blink/blink ${{ github.workspace }}/blink-${{ env.blink_distribution }}-solaris${{ matrix.os_version }}-${{ matrix.arch }}
           cp o/${{ env.blink_mode }}/blink/blinkenlights ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-solaris${{ matrix.os_version }}-${{ matrix.arch }}
+
+          # Create stripped copy
+          cp ${{ github.workspace }}/blink-${{ env.blink_distribution }}-solaris${{ matrix.os_version }}-${{ matrix.arch }} ${{ github.workspace }}/blink-${{ env.blink_distribution }}-solaris${{ matrix.os_version }}-${{ matrix.arch }}-stripped
+          cp ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-solaris${{ matrix.os_version }}-${{ matrix.arch }} ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-solaris${{ matrix.os_version }}-${{ matrix.arch }}-stripped
+          strip ${{ github.workspace }}/blink-${{ env.blink_distribution }}-solaris${{ matrix.os_version }}-${{ matrix.arch }}-stripped
+          strip ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-solaris${{ matrix.os_version }}-${{ matrix.arch }}-stripped
 
       - name: Check Blink
         continue-on-error: true
@@ -272,10 +319,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: blink-${{ env.blink_distribution }}-solaris${{ matrix.os_version }}-${{ matrix.arch }}
-          path: blink-${{ env.blink_distribution }}-solaris${{ matrix.os_version }}-${{ matrix.arch }}
+          path: blink-${{ env.blink_distribution }}-solaris${{ matrix.os_version }}-${{ matrix.arch }}*
 
       - name: Upload Blinkenlights
         uses: actions/upload-artifact@v4
         with:
           name: blinkenlights-${{ env.blink_distribution }}-solaris${{ matrix.os_version }}-${{ matrix.arch }}
-          path: blinkenlights-${{ env.blink_distribution }}-solaris${{ matrix.os_version }}-${{ matrix.arch }}
+          path: blinkenlights-${{ env.blink_distribution }}-solaris${{ matrix.os_version }}-${{ matrix.arch }}*
