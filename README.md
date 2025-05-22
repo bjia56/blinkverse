@@ -1,2 +1,2 @@
-# blinkverse
+# Blinkverse
 Universe of Blink VMs
