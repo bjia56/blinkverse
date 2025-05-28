@@ -268,7 +268,7 @@ jobs:
           path: blinkenlights-${{ env.blink_distribution }}-freebsd${{ matrix.os_version }}-${{ matrix.arch }}*
 
   build_dragonflybsd:
-    name: Build DragonflyBSD ${{ matrix.os_version }} ${{ matrix.arch }} ${{ inputs.distribution }}
+    name: Build DragonFlyBSD ${{ matrix.os_version }} ${{ matrix.arch }} ${{ inputs.distribution }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
