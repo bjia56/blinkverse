@@ -56,7 +56,6 @@ jobs:
       - name: Create release
         run: |
           gh release create ${{ needs.next_tag.outputs.next_tag }} \
-            --generate-notes \
             --title ${{ needs.next_tag.outputs.next_tag }} \
             --target ${{ github.sha }}
         env:
