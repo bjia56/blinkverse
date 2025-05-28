@@ -267,6 +267,67 @@ jobs:
           name: blinkenlights-${{ env.blink_distribution }}-freebsd${{ matrix.os_version }}-${{ matrix.arch }}
           path: blinkenlights-${{ env.blink_distribution }}-freebsd${{ matrix.os_version }}-${{ matrix.arch }}*
 
+  build_dragonflybsd:
+    name: Build DragonflyBSD ${{ matrix.os_version }} ${{ matrix.arch }} ${{ inputs.distribution }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x86_64]
+        os_version: ["6.4.0"]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Start VM
+        uses: vmactions/dragonflybsd-vm@v1
+        with:
+          sync: nfs
+          arch: ${{ matrix.arch }}
+          release: ${{ matrix.os_version }}
+          prepare: |
+            pkg upgrade -y
+            pkg install -y git gmake
+
+      - name: Build Blink
+        shell: dragonflybsd {0}
+        run: |
+          git clone https://github.com/bjia56/blink.git
+          cd blink
+          git checkout ${{ env.blink_version }}
+          ./configure MODE=${{ env.blink_mode }} --disable-nonposix
+          gmake -j4
+
+          # Rename for output
+          cp o/${{ env.blink_mode }}/blink/blink ${{ github.workspace }}/blink-${{ env.blink_distribution }}-dragonflybsd${{ matrix.os_version }}-${{ matrix.arch }}
+          cp o/${{ env.blink_mode }}/blink/blinkenlights ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-dragonflybsd${{ matrix.os_version }}-${{ matrix.arch }}
+
+          # Create stripped copy
+          cp ${{ github.workspace }}/blink-${{ env.blink_distribution }}-dragonflybsd${{ matrix.os_version }}-${{ matrix.arch }} ${{ github.workspace }}/blink-${{ env.blink_distribution }}-dragonflybsd${{ matrix.os_version }}-${{ matrix.arch }}-stripped
+          cp ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-dragonflybsd${{ matrix.os_version }}-${{ matrix.arch }} ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-dragonflybsd${{ matrix.os_version }}-${{ matrix.arch }}-stripped
+          strip ${{ github.workspace }}/blink-${{ env.blink_distribution }}-dragonflybsd${{ matrix.os_version }}-${{ matrix.arch }}-stripped
+          strip ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-dragonflybsd${{ matrix.os_version }}-${{ matrix.arch }}-stripped
+
+      - name: Check Blink
+        continue-on-error: true
+        shell: dragonflybsd {0}
+        run: |
+          cd blink
+          gmake check
+
+      - name: Upload Blink
+        uses: actions/upload-artifact@v4
+        with:
+          name: blink-${{ env.blink_distribution }}-dragonflybsd${{ matrix.os_version }}-${{ matrix.arch }}
+          path: blink-${{ env.blink_distribution }}-dragonflybsd${{ matrix.os_version }}-${{ matrix.arch }}*
+
+      - name: Upload Blinkenlights
+        uses: actions/upload-artifact@v4
+        with:
+          name: blinkenlights-${{ env.blink_distribution }}-dragonflybsd${{ matrix.os_version }}-${{ matrix.arch }}
+          path: blinkenlights-${{ env.blink_distribution }}-dragonflybsd${{ matrix.os_version }}-${{ matrix.arch }}*
+
   build_solaris:
     name: Build Solaris ${{ matrix.os_version }} ${{ matrix.arch }} ${{ inputs.distribution }}
     runs-on: ubuntu-latest
