@@ -13,11 +13,57 @@ on:
 
 env:
   zig_version: 0.14.0
+  cosmocc_version: 4.0.2
   blink_version: c4b8e4f0e3ee7395525894a78e8b91d8072c91b0
   blink_distribution: ${{ inputs.distribution || 'full' }}
   blink_mode: ${{ inputs.distribution != 'full' && inputs.distribution || '' }}
 
 jobs:
+  build_cosmo:
+    name: Build Cosmopolitan ${{ inputs.distribution }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up cosmocc
+        uses: bjia56/setup-cosmocc@v0.0.4
+        with:
+          version: ${{ env.cosmocc_version }}
+
+      - name: Build Blink
+        run: |
+          export CC=cosmocc
+
+          git clone https://github.com/bjia56/blink.git
+          cd blink
+          git checkout ${{ env.blink_version }}
+          ./configure MODE=${{ env.blink_mode }}
+          make -j4
+
+          # Rename for output
+          cp o/${{ env.blink_mode }}/blink/blink ${{ github.workspace }}/blink-${{ env.blink_distribution }}-cosmo
+          cp o/${{ env.blink_mode }}/blink/blinkenlights ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-cosmo
+
+      - name: Check Blink
+        continue-on-error: true
+        run: |
+          cd blink
+          make check
+
+      - name: Upload Blink
+        uses: actions/upload-artifact@v4
+        with:
+          name: blink-${{ env.blink_distribution }}-cosmo
+          path: blink-${{ env.blink_distribution }}-cosmo*
+
+      - name: Upload Blinkenlights
+        uses: actions/upload-artifact@v4
+        with:
+          name: blinkenlights-${{ env.blink_distribution }}-cosmo
+          path: blinkenlights-${{ env.blink_distribution }}-cosmo*
+
   build_linux:
     name: Build Linux ${{ matrix.arch }} ${{ inputs.distribution }}
     runs-on: ubuntu-latest
