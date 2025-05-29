@@ -34,17 +34,35 @@ jobs:
 
       - name: Build Blink
         run: |
-          export CC=cosmocc
-
           git clone https://github.com/bjia56/blink.git
           cd blink
           git checkout ${{ env.blink_version }}
-          ./configure MODE=${{ env.blink_mode }}
-          make -j4
 
-          # Rename for output
-          cp o/${{ env.blink_mode }}/blink/blink ${{ github.workspace }}/blink-${{ env.blink_distribution }}-cosmo
-          cp o/${{ env.blink_mode }}/blink/blinkenlights ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-cosmo
+          for arch in x86_64 aarch64; do
+            cd ${{ github.workspace }}
+            cp -r blink blink-${arch}
+            cd blink-${arch}
+
+            export CC=${arch}-unknown-cosmo
+            ./configure MODE=${{ env.blink_mode }}
+            make -j4
+
+            # Rename for output
+            cp o/${{ env.blink_mode }}/blink/blink ${{ github.workspace }}/blink-${{ env.blink_distribution }}-cosmo-${arch}
+            cp o/${{ env.blink_mode }}/blink/blinkenlights ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-cosmo-${arch}
+          fi
+
+          cd ${{ github.workspace }}
+          cosmo_bin=$(dirname $(which cosmocc))
+          for blink in blink blinkenlights; do
+            apelink \
+              -l ${cosmo_bin}/ape-x86_64.elf \
+              -l ${cosmo_bin}/ape-aarch64.elf \
+              -M ${cosmo_bin}/ape-m1.c \
+              -o ${blink}-${{ env.blink_distribution }}-cosmo \
+              ${{ github.workspace }}/${blink}-${{ env.blink_distribution }}-cosmo-x86_64 \
+              ${{ github.workspace }}/${blink}-${{ env.blink_distribution }}-cosmo-aarch64
+          fi
 
       - name: Check Blink
         continue-on-error: true
