@@ -76,13 +76,13 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: blink-${{ env.blink_distribution }}-cosmo
-          path: blink-${{ env.blink_distribution }}-cosmo*
+          path: blink-${{ env.blink_distribution }}-cosmo
 
       - name: Upload Blinkenlights
         uses: actions/upload-artifact@v4
         with:
           name: blinkenlights-${{ env.blink_distribution }}-cosmo
-          path: blinkenlights-${{ env.blink_distribution }}-cosmo*
+          path: blinkenlights-${{ env.blink_distribution }}-cosmo
 
   build_linux:
     name: Build Linux ${{ matrix.arch }} ${{ inputs.distribution }}
