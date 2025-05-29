@@ -43,7 +43,7 @@ jobs:
             cp -r blink blink-${arch}
             cd blink-${arch}
 
-            export CC=${arch}-unknown-cosmo
+            export CC=${arch}-unknown-cosmo-cc
             ./configure MODE=${{ env.blink_mode }}
             make -j4
 
