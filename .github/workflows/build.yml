@@ -67,7 +67,9 @@ jobs:
       - name: Check Blink
         continue-on-error: true
         run: |
-          cd blink
+          cd blink-x86_64
+          cp ${{ github.workspace }}/blink-${{ env.blink_distribution }}-cosmo o/${{ env.blink_mode }}/blink/blink
+          cp ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-cosmo o/${{ env.blink_mode }}/blink/blinkenlights
           make check
 
       - name: Upload Blink
