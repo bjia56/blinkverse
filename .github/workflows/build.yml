@@ -175,7 +175,7 @@ jobs:
           ./configure MODE=${{ env.blink_mode }} ${{ (matrix.arch != 'x86_64' && matrix.arch != 'aarch64') && '--disable-jit' || '' }}
           make -j4
 
-          workspace=$(cygpath -u '${{ github.workspace }}'
+          workspace=$(cygpath -u '${{ github.workspace }}')
 
           # Rename for output
           cp o/${{ env.blink_mode }}/blink/blink ${workspace}/blink-${{ env.blink_distribution }}-cygwin-${{ matrix.arch }}
