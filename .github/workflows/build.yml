@@ -175,15 +175,17 @@ jobs:
           ./configure MODE=${{ env.blink_mode }} ${{ (matrix.arch != 'x86_64' && matrix.arch != 'aarch64') && '--disable-jit' || '' }}
           make -j4
 
+          workspace=$(cygpath -u '${{ github.workspace }}'
+
           # Rename for output
-          cp o/${{ env.blink_mode }}/blink/blink ${{ github.workspace }}/blink-${{ env.blink_distribution }}-cygwin-${{ matrix.arch }}
-          cp o/${{ env.blink_mode }}/blink/blinkenlights ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-cygwin-${{ matrix.arch }}
+          cp o/${{ env.blink_mode }}/blink/blink ${workspace}/blink-${{ env.blink_distribution }}-cygwin-${{ matrix.arch }}
+          cp o/${{ env.blink_mode }}/blink/blinkenlights ${workspace}/blinkenlights-${{ env.blink_distribution }}-cygwin-${{ matrix.arch }}
 
           # Create stripped copy
-          cp ${{ github.workspace }}/blink-${{ env.blink_distribution }}-cygwin-${{ matrix.arch }} ${{ github.workspace }}/blink-${{ env.blink_distribution }}-cygwin-${{ matrix.arch }}-stripped
-          cp ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-cygwin-${{ matrix.arch }} ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-cygwin-${{ matrix.arch }}-stripped
-          strip ${{ github.workspace }}/blink-${{ env.blink_distribution }}-cygwin-${{ matrix.arch }}-stripped
-          strip ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-cygwin-${{ matrix.arch }}-stripped
+          cp ${workspace}/blink-${{ env.blink_distribution }}-cygwin-${{ matrix.arch }} ${workspace}/blink-${{ env.blink_distribution }}-cygwin-${{ matrix.arch }}-stripped
+          cp ${workspace}/blinkenlights-${{ env.blink_distribution }}-cygwin-${{ matrix.arch }} ${workspace}/blinkenlights-${{ env.blink_distribution }}-cygwin-${{ matrix.arch }}-stripped
+          strip ${workspace}/blink-${{ env.blink_distribution }}-cygwin-${{ matrix.arch }}-stripped
+          strip ${workspace}/blinkenlights-${{ env.blink_distribution }}-cygwin-${{ matrix.arch }}-stripped
 
       - name: Check Blink
         continue-on-error: true
