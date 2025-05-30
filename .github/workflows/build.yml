@@ -150,6 +150,7 @@ jobs:
           path: blinkenlights-${{ env.blink_distribution }}-linux-${{ matrix.arch }}*
 
   build_cygwin:
+    name: Build Cygwin ${{ matrix.arch }} ${{ inputs.distribution }}
     runs-on: windows-latest
     strategy:
       fail-fast: false
