@@ -149,6 +149,60 @@ jobs:
           name: blinkenlights-${{ env.blink_distribution }}-linux-${{ matrix.arch }}
           path: blinkenlights-${{ env.blink_distribution }}-linux-${{ matrix.arch }}*
 
+  build_cygwin:
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x86_64]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Cygwin
+        uses: cygwin/cygwin-install-action@v5
+        with:
+          add-to-path: false
+          packages: gcc-core make
+
+      - name: Build Blink
+        shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
+        run: |
+          git clone https://github.com/bjia56/blink.git
+          cd blink
+          git checkout ${{ env.blink_version }}
+          ./configure MODE=${{ env.blink_mode }} ${{ (matrix.arch != 'x86_64' && matrix.arch != 'aarch64') && '--disable-jit' || '' }}
+          make -j4
+
+          # Rename for output
+          cp o/${{ env.blink_mode }}/blink/blink ${{ github.workspace }}/blink-${{ env.blink_distribution }}-cygwin-${{ matrix.arch }}
+          cp o/${{ env.blink_mode }}/blink/blinkenlights ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-cygwin-${{ matrix.arch }}
+
+          # Create stripped copy
+          cp ${{ github.workspace }}/blink-${{ env.blink_distribution }}-cygwin-${{ matrix.arch }} ${{ github.workspace }}/blink-${{ env.blink_distribution }}-cygwin-${{ matrix.arch }}-stripped
+          cp ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-cygwin-${{ matrix.arch }} ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-cygwin-${{ matrix.arch }}-stripped
+          strip ${{ github.workspace }}/blink-${{ env.blink_distribution }}-cygwin-${{ matrix.arch }}-stripped
+          strip ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-cygwin-${{ matrix.arch }}-stripped
+
+      - name: Check Blink
+        continue-on-error: true
+        shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
+        run: |
+          cd blink
+          make check
+
+      - name: Upload Blink
+        uses: actions/upload-artifact@v4
+        with:
+          name: blink-${{ env.blink_distribution }}-cygwin-${{ matrix.arch }}
+          path: blink-${{ env.blink_distribution }}-cygwin-${{ matrix.arch }}*
+
+      - name: Upload Blinkenlights
+        uses: actions/upload-artifact@v4
+        with:
+          name: blinkenlights-${{ env.blink_distribution }}-cygwin-${{ matrix.arch }}
+          path: blinkenlights-${{ env.blink_distribution }}-cygwin-${{ matrix.arch }}*
+
   build_openbsd:
     name: Build OpenBSD ${{ matrix.os_version }} ${{ matrix.arch }} ${{ inputs.distribution }}
     runs-on: ubuntu-latest
