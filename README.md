@@ -16,3 +16,7 @@ The current builds target:
 | OpenBSD (7.6, 7.7) | x86_64, aarch64 |
 | DragonFlyBSD (6.4.0) | x86_64 |
 | Solaris (11.4) | x86_64 |
+
+## Licensing
+
+The build scripts in this repository are released under the MIT License. The provided Blink executables are released under the ISC License, following the upstream project's terms.
