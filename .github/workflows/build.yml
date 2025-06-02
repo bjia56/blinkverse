@@ -87,7 +87,6 @@ jobs:
   build_linux:
     name: Build Linux ${{ matrix.arch }} ${{ inputs.distribution }}
     runs-on: ubuntu-latest
-    container: debian:sid
     strategy:
       fail-fast: false
       matrix:
@@ -101,16 +100,6 @@ jobs:
         uses: mlugg/setup-zig@v1
         with:
           version: ${{ env.zig_version }}
-
-      - name: Install interpreters
-        run: |
-          sudo apt update
-          sudo apt -y install qemu-user-static
-
-      - name: Install cross compilers
-        if: ${{ matrix.arch != 'x86_64' }}
-        run: |
-          sudo apt install -y gcc-${{ matrix.arch }}-linux-gnu
 
       - name: Build Blink
         run: |
@@ -126,11 +115,37 @@ jobs:
           cp o/${{ env.blink_mode }}/blink/blink ${{ github.workspace }}/blink-${{ env.blink_distribution }}-linux-${{ matrix.arch }}
           cp o/${{ env.blink_mode }}/blink/blinkenlights ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-linux-${{ matrix.arch }}
 
-          # Create stripped copy
+      - name: Create stripped copy
+        if: ${{ matrix.arch != 'x86_64' }}
+        uses: addnab/docker-run-action@v3
+        with:
+          image: debian:sid
+          options: --platform ${{ steps.parse_platform.outputs.platform }} -v ${{ github.workspace }}:${{ github.workspace }} --workdir ${{ github.workspace }}
+          shell: bash
+          run: |
+            set -e
+
+            apt update
+            apt -y install gcc-${{ matrix.arch }}-linux-gnu
+
+            cp ${{ github.workspace }}/blink-${{ env.blink_distribution }}-linux-${{ matrix.arch }} ${{ github.workspace }}/blink-${{ env.blink_distribution }}-linux-${{ matrix.arch }}-stripped
+            cp ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-linux-${{ matrix.arch }} ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-linux-${{ matrix.arch }}-stripped
+            ${{ matrix.arch }}-linux-gnu-strip ${{ github.workspace }}/blink-${{ env.blink_distribution }}-linux-${{ matrix.arch }}-stripped
+            ${{ matrix.arch }}-linux-gnu-strip ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-linux-${{ matrix.arch }}-stripped
+
+      - name: Create stripped copy
+        if: ${{ matrix.arch == 'x86_64' }}
+        run: |
           cp ${{ github.workspace }}/blink-${{ env.blink_distribution }}-linux-${{ matrix.arch }} ${{ github.workspace }}/blink-${{ env.blink_distribution }}-linux-${{ matrix.arch }}-stripped
           cp ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-linux-${{ matrix.arch }} ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-linux-${{ matrix.arch }}-stripped
           ${{ matrix.arch }}-linux-gnu-strip ${{ github.workspace }}/blink-${{ env.blink_distribution }}-linux-${{ matrix.arch }}-stripped
           ${{ matrix.arch }}-linux-gnu-strip ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-linux-${{ matrix.arch }}-stripped
+
+      - name: Install interpreters
+        if: ${{ matrix.arch != 'x86_64' }}
+        run: |
+          sudo apt update
+          sudo apt -y install qemu-user-static
 
       - name: Check Blink
         continue-on-error: true
