@@ -86,11 +86,11 @@ jobs:
 
   build_linux:
     name: Build Linux ${{ matrix.arch }} ${{ inputs.distribution }}
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.arch != 'i686' && 'ubuntu-latest' || 'ubuntu-24.04-arm' }}
     strategy:
       fail-fast: false
       matrix:
-        arch: [x86_64, aarch64, riscv64, s390x, powerpc64le, loongarch64]
+        arch: [x86_64, i686, aarch64, riscv64, s390x, powerpc64le, loongarch64]
 
     steps:
       - name: Checkout
@@ -109,7 +109,7 @@ jobs:
 
       - name: Build Blink
         run: |
-          export CC="${{ github.workspace }}/zigshim/zig cc -target ${{ matrix.arch }}-linux-musl"
+          export CC="${{ github.workspace }}/zigshim/zig cc -target ${{ matrix.arch == 'i686' && 'x86' || matrix.arch }}-linux-musl"
 
           git clone https://github.com/bjia56/blink.git
           cd blink
