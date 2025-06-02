@@ -101,6 +101,12 @@ jobs:
         with:
           version: ${{ env.zig_version }}
 
+      - name: Install interpreters
+        if: ${{ matrix.arch != 'x86_64' }}
+        run: |
+          sudo apt update
+          sudo apt -y install qemu-user-static
+
       - name: Build Blink
         run: |
           export CC="${{ github.workspace }}/zigshim/zig cc -target ${{ matrix.arch }}-linux-musl"
@@ -120,7 +126,7 @@ jobs:
         uses: addnab/docker-run-action@v3
         with:
           image: debian:sid
-          options: --platform ${{ steps.parse_platform.outputs.platform }} -v ${{ github.workspace }}:${{ github.workspace }} --workdir ${{ github.workspace }}
+          options: -v ${{ github.workspace }}:${{ github.workspace }} --workdir ${{ github.workspace }}
           shell: bash
           run: |
             set -e
@@ -140,12 +146,6 @@ jobs:
           cp ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-linux-${{ matrix.arch }} ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-linux-${{ matrix.arch }}-stripped
           ${{ matrix.arch }}-linux-gnu-strip ${{ github.workspace }}/blink-${{ env.blink_distribution }}-linux-${{ matrix.arch }}-stripped
           ${{ matrix.arch }}-linux-gnu-strip ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-linux-${{ matrix.arch }}-stripped
-
-      - name: Install interpreters
-        if: ${{ matrix.arch != 'x86_64' }}
-        run: |
-          sudo apt update
-          sudo apt -y install qemu-user-static
 
       - name: Check Blink
         continue-on-error: true
