@@ -181,7 +181,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        arch: [x86_64]
+        arch: [x86_64, x86]
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -191,6 +192,7 @@ jobs:
         with:
           add-to-path: false
           packages: gcc-core make
+          platform: ${{ matrix.arch }}
 
       - name: Build Blink
         shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
@@ -198,7 +200,7 @@ jobs:
           git clone https://github.com/bjia56/blink.git
           cd blink
           git checkout ${{ env.blink_version }}
-          ./configure MODE=${{ env.blink_mode }} ${{ (matrix.arch != 'x86_64' && matrix.arch != 'aarch64') && '--disable-jit' || '' }}
+          ./configure MODE=${{ env.blink_mode }} ${{ matrix.arch != 'x86_64' && '--disable-jit' || '' }}
           make -j4
 
           workspace=$(cygpath -u '${{ github.workspace }}')
