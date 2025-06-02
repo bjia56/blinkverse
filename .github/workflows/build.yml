@@ -86,11 +86,20 @@ jobs:
 
   build_linux:
     name: Build Linux ${{ matrix.arch }} ${{ inputs.distribution }}
-    runs-on: ${{ matrix.arch != 'i386' && 'ubuntu-latest' || 'ubuntu-24.04-arm' }}
+    runs-on: ${{ matrix.runner || 'ubuntu-latest' }}
     strategy:
       fail-fast: false
-      matrix:
-        arch: [x86_64, i386, aarch64, riscv64, s390x, powerpc64le, loongarch64]
+      include:
+        - arch: x86_64
+        - arch: i386
+          gcc_arch: i686
+          zig_arch: x86
+          runner: ubuntu-24.04-arm
+        - arch: aarch64
+        - arch: riscv64
+        - arch: s390x
+        - arch: powerpc64le
+        - arch: loongarch64
 
     steps:
       - name: Checkout
@@ -109,7 +118,7 @@ jobs:
 
       - name: Build Blink
         run: |
-          export CC="${{ github.workspace }}/zigshim/zig cc -target ${{ matrix.arch == 'i386' && 'x86' || matrix.arch }}-linux-musl"
+          export CC="${{ github.workspace }}/zigshim/zig cc -target ${{ matrix.zig_arch || matrix.arch }}-linux-musl"
 
           git clone https://github.com/bjia56/blink.git
           cd blink
@@ -132,12 +141,12 @@ jobs:
             set -e
 
             apt update
-            apt -y install gcc-${{ matrix.arch == 'i386' && 'i686' || matrix.arch }}-linux-gnu
+            apt -y install gcc-${{ matrix.gcc_arch || matrix.arch }}-linux-gnu
 
             cp ${{ github.workspace }}/blink-${{ env.blink_distribution }}-linux-${{ matrix.arch }} ${{ github.workspace }}/blink-${{ env.blink_distribution }}-linux-${{ matrix.arch }}-stripped
             cp ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-linux-${{ matrix.arch }} ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-linux-${{ matrix.arch }}-stripped
-            ${{ matrix.arch == 'i386' && 'i686' || matrix.arch }}-linux-gnu-strip ${{ github.workspace }}/blink-${{ env.blink_distribution }}-linux-${{ matrix.arch }}-stripped
-            ${{ matrix.arch == 'i386' && 'i686' || matrix.arch }}-linux-gnu-strip ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-linux-${{ matrix.arch }}-stripped
+            ${{ matrix.gcc_arch || matrix.arch }}-linux-gnu-strip ${{ github.workspace }}/blink-${{ env.blink_distribution }}-linux-${{ matrix.arch }}-stripped
+            ${{ matrix.gcc_arch || matrix.arch }}-linux-gnu-strip ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-linux-${{ matrix.arch }}-stripped
 
       - name: Create stripped copy
         if: ${{ matrix.arch == 'x86_64' }}
