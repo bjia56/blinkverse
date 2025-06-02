@@ -87,6 +87,7 @@ jobs:
   build_linux:
     name: Build Linux ${{ matrix.arch }} ${{ inputs.distribution }}
     runs-on: ubuntu-latest
+    container: debian:sid
     strategy:
       fail-fast: false
       matrix:
