@@ -563,7 +563,7 @@ jobs:
           git clone https://github.com/bjia56/blink.git
           cd blink
           git checkout ${{ env.blink_version }}
-          CC=gcc-mp-14 CFLAGS="-I/opt/local/include -L/opt/local/lib -lMacportsLegacySupport" LDFLAGS="/opt/local/lib/libMacportsLegacySupport.a" ./configure MODE=${{ env.blink_mode }} --disable-jit
+          CC=gcc-mp-14 CFLAGS="-I/opt/local/include/LegacySupport -L/opt/local/lib -lMacportsLegacySupport" LDFLAGS="/opt/local/lib/libMacportsLegacySupport.a" ./configure MODE=${{ env.blink_mode }} --disable-jit
           gmake -j4
 
           # Rename for output
