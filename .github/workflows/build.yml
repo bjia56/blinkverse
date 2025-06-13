@@ -554,6 +554,8 @@ jobs:
 
       - name: Start VM
         uses: bjia56/custom-actions/macppc-vm@main
+        with:
+          user: macuser
 
       - name: Build Blink
         shell: macppc {0}
