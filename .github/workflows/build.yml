@@ -580,6 +580,11 @@ jobs:
         run: |
           cd blink
           gmake check
+      
+      - name: Copy out of VM
+        run: |
+          scp macppc:/var/root/blink/blink-* .
+          scp macppc:/var/root/blink/blinkenlights-* .
 
       - name: Upload Blink
         uses: actions/upload-artifact@v4
