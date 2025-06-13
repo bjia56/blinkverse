@@ -567,14 +567,14 @@ jobs:
           gmake -j4
 
           # Rename for output
-          cp o/${{ env.blink_mode }}/blink/blink ${{ github.workspace }}/blink-${{ env.blink_distribution }}-macos${{ matrix.os_version }}-${{ matrix.arch }}
-          cp o/${{ env.blink_mode }}/blink/blinkenlights ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-macos${{ matrix.os_version }}-${{ matrix.arch }}
+          cp o/${{ env.blink_mode }}/blink/blink /Users/macuser/blink/blink-${{ env.blink_distribution }}-macos${{ matrix.os_version }}-${{ matrix.arch }}
+          cp o/${{ env.blink_mode }}/blink/blinkenlights /Users/macuser/blink/blinkenlights-${{ env.blink_distribution }}-macos${{ matrix.os_version }}-${{ matrix.arch }}
 
           # Create stripped copy
-          cp ${{ github.workspace }}/blink-${{ env.blink_distribution }}-macos${{ matrix.os_version }}-${{ matrix.arch }} ${{ github.workspace }}/blink-${{ env.blink_distribution }}-macos${{ matrix.os_version }}-${{ matrix.arch }}-stripped
-          cp ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-macos${{ matrix.os_version }}-${{ matrix.arch }} ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-solaris${{ matrix.os_version }}-${{ matrix.arch }}-stripped
-          strip ${{ github.workspace }}/blink-${{ env.blink_distribution }}-macos${{ matrix.os_version }}-${{ matrix.arch }}-stripped
-          strip ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-macos${{ matrix.os_version }}-${{ matrix.arch }}-stripped
+          cp /Users/macuser/blink/blink-${{ env.blink_distribution }}-macos${{ matrix.os_version }}-${{ matrix.arch }} /Users/macuser/blink/blink-${{ env.blink_distribution }}-macos${{ matrix.os_version }}-${{ matrix.arch }}-stripped
+          cp /Users/macuser/blink/blinkenlights-${{ env.blink_distribution }}-macos${{ matrix.os_version }}-${{ matrix.arch }} /Users/macuser/blink/blinkenlights-${{ env.blink_distribution }}-solaris${{ matrix.os_version }}-${{ matrix.arch }}-stripped
+          strip /Users/macuser/blink/blink-${{ env.blink_distribution }}-macos${{ matrix.os_version }}-${{ matrix.arch }}-stripped
+          strip /Users/macuser/blink/blinkenlights-${{ env.blink_distribution }}-macos${{ matrix.os_version }}-${{ matrix.arch }}-stripped
 
       - name: Check Blink
         continue-on-error: true
@@ -582,11 +582,11 @@ jobs:
         run: |
           cd blink
           gmake check
-      
+
       - name: Copy out of VM
         run: |
-          scp macppc:/var/root/blink/blink-* .
-          scp macppc:/var/root/blink/blinkenlights-* .
+          scp macppc:/Users/macuser/blink/blink-* .
+          scp macppc:/Users/macuser/blink/blinkenlights-* .
 
       - name: Upload Blink
         uses: actions/upload-artifact@v4
