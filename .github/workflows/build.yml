@@ -14,7 +14,7 @@ on:
 env:
   zig_version: 0.14.0
   cosmocc_version: 4.0.2
-  blink_version: 2a4f8adbb8b1ae102f0b17cda94e279f4a390d13
+  blink_version: 4e03ea5f22f25630a7b660a00078306a9508ded9
   blink_distribution: ${{ inputs.distribution || 'full' }}
   blink_mode: ${{ inputs.distribution != 'full' && inputs.distribution || '' }}
 
@@ -538,3 +538,57 @@ jobs:
         with:
           name: blinkenlights-${{ env.blink_distribution }}-solaris${{ matrix.os_version }}-${{ matrix.arch }}
           path: blinkenlights-${{ env.blink_distribution }}-solaris${{ matrix.os_version }}-${{ matrix.arch }}*
+
+  build_macos:
+    name: Build MacOS ${{ matrix.os_version }} ${{ matrix.arch }} ${{ inputs.distribution }}
+    runs-on: self-hosted
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [powerpc]
+        os_version: ["10.4"]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Start VM
+        uses: bjia56/custom-actions/macppc-vm@main
+
+      - name: Build Blink
+        shell: macppc {0}
+        run: |
+          git clone https://github.com/bjia56/blink.git
+          cd blink
+          git checkout ${{ env.blink_version }}
+          CC="gcc-mp-14 -I/opt/local/include -L/opt/local/lib -lMacportsLegacySupport" LDFLAGS="/opt/local/lib/libMacportsLegacySupport.a" ./configure MODE=${{ env.blink_mode }} --disable-jit
+          gmake -j4
+
+          # Rename for output
+          cp o/${{ env.blink_mode }}/blink/blink ${{ github.workspace }}/blink-${{ env.blink_distribution }}-macos${{ matrix.os_version }}-${{ matrix.arch }}
+          cp o/${{ env.blink_mode }}/blink/blinkenlights ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-macos${{ matrix.os_version }}-${{ matrix.arch }}
+
+          # Create stripped copy
+          cp ${{ github.workspace }}/blink-${{ env.blink_distribution }}-macos${{ matrix.os_version }}-${{ matrix.arch }} ${{ github.workspace }}/blink-${{ env.blink_distribution }}-macos${{ matrix.os_version }}-${{ matrix.arch }}-stripped
+          cp ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-macos${{ matrix.os_version }}-${{ matrix.arch }} ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-solaris${{ matrix.os_version }}-${{ matrix.arch }}-stripped
+          strip ${{ github.workspace }}/blink-${{ env.blink_distribution }}-macos${{ matrix.os_version }}-${{ matrix.arch }}-stripped
+          strip ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-macos${{ matrix.os_version }}-${{ matrix.arch }}-stripped
+
+      - name: Check Blink
+        continue-on-error: true
+        shell: macppc {0}
+        run: |
+          cd blink
+          gmake check
+
+      - name: Upload Blink
+        uses: actions/upload-artifact@v4
+        with:
+          name: blink-${{ env.blink_distribution }}-macos${{ matrix.os_version }}-${{ matrix.arch }}
+          path: blink-${{ env.blink_distribution }}-macos${{ matrix.os_version }}-${{ matrix.arch }}*
+
+      - name: Upload Blinkenlights
+        uses: actions/upload-artifact@v4
+        with:
+          name: blinkenlights-${{ env.blink_distribution }}-macos${{ matrix.os_version }}-${{ matrix.arch }}
+          path: blinkenlights-${{ env.blink_distribution }}-macos${{ matrix.os_version }}-${{ matrix.arch }}*
