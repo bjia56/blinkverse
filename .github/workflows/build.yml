@@ -66,6 +66,7 @@ jobs:
 
       - name: Check Blink
         continue-on-error: true
+        timeout-minutes: 180
         run: |
           cd blink-x86_64
           cp ${{ github.workspace }}/blink-${{ env.blink_distribution }}-cosmo o/${{ env.blink_mode }}/blink/blink
@@ -159,6 +160,7 @@ jobs:
 
       - name: Check Blink
         continue-on-error: true
+        timeout-minutes: 180
         run: |
           cd blink
           make check
@@ -217,6 +219,7 @@ jobs:
 
       - name: Check Blink
         continue-on-error: true
+        timeout-minutes: 180
         shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
         run: |
           cd blink
@@ -277,6 +280,7 @@ jobs:
 
       - name: Check Blink
         continue-on-error: true
+        timeout-minutes: 180
         shell: openbsd {0}
         run: |
           cd blink
@@ -341,6 +345,7 @@ jobs:
 
       - name: Check Blink
         continue-on-error: true
+        timeout-minutes: 180
         shell: netbsd {0}
         run: |
           cd blink
@@ -401,6 +406,7 @@ jobs:
 
       - name: Check Blink
         continue-on-error: true
+        timeout-minutes: 180
         shell: freebsd {0}
         run: |
           cd blink
@@ -462,6 +468,7 @@ jobs:
 
       - name: Check Blink
         continue-on-error: true
+        timeout-minutes: 180
         shell: dragonflybsd {0}
         run: |
           cd blink
@@ -522,6 +529,7 @@ jobs:
 
       - name: Check Blink
         continue-on-error: true
+        timeout-minutes: 180
         shell: solaris {0}
         run: |
           cd blink
@@ -584,6 +592,7 @@ jobs:
 
       - name: Check Blink
         continue-on-error: true
+        timeout-minutes: 180
         shell: macppc {0}
         run: |
           cd blink
