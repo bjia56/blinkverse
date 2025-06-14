@@ -562,18 +562,12 @@ jobs:
 
       - name: Start VM
         uses: bjia56/custom-actions/macppc-vm@main
-        with:
-          user: macuser
-
-      - name: Force remove MacPorts libz.dylib
-        run: |
-          cat <<- "MACPPCSCRIPT" | ssh root@macppc /bin/bash
-          rm -f /opt/local/lib/libz.*dylib
-          MACPPCSCRIPT
 
       - name: Build Blink
         shell: macppc {0}
         run: |
+          sudo rm -f /opt/local/lib/libz.*dylib
+
           git clone https://github.com/bjia56/blink.git
           cd blink
           git checkout ${{ env.blink_version }}
