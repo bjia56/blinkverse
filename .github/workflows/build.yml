@@ -557,6 +557,12 @@ jobs:
         with:
           user: macuser
 
+      - name: Force remove MacPorts libz.dylib
+        run: |
+          cat <<- "MACPPCSCRIPT" | ssh root@macppc /bin/bash
+          rm -f /opt/local/lib/libz.*dylib
+          MACPPCSCRIPT
+
       - name: Build Blink
         shell: macppc {0}
         run: |
