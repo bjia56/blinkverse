@@ -572,7 +572,7 @@ jobs:
 
           # Create stripped copy
           cp /Users/macuser/blink/blink-${{ env.blink_distribution }}-macos${{ matrix.os_version }}-${{ matrix.arch }} /Users/macuser/blink/blink-${{ env.blink_distribution }}-macos${{ matrix.os_version }}-${{ matrix.arch }}-stripped
-          cp /Users/macuser/blink/blinkenlights-${{ env.blink_distribution }}-macos${{ matrix.os_version }}-${{ matrix.arch }} /Users/macuser/blink/blinkenlights-${{ env.blink_distribution }}-solaris${{ matrix.os_version }}-${{ matrix.arch }}-stripped
+          cp /Users/macuser/blink/blinkenlights-${{ env.blink_distribution }}-macos${{ matrix.os_version }}-${{ matrix.arch }} /Users/macuser/blink/blinkenlights-${{ env.blink_distribution }}-macos${{ matrix.os_version }}-${{ matrix.arch }}-stripped
           strip /Users/macuser/blink/blink-${{ env.blink_distribution }}-macos${{ matrix.os_version }}-${{ matrix.arch }}-stripped
           strip /Users/macuser/blink/blinkenlights-${{ env.blink_distribution }}-macos${{ matrix.os_version }}-${{ matrix.arch }}-stripped
 
