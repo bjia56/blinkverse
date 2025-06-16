@@ -14,4 +14,4 @@ for arg in "$@"; do
 done
 
 # Execute the compiler with the filtered arguments
-exec $0 "${filtered_args[@]}"
+exec $me "${filtered_args[@]}"
