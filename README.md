@@ -17,6 +17,7 @@ The current builds target:
 | DragonFlyBSD (6.4.0) | x86_64 |
 | Solaris (11.4) | x86_64 |
 | Windows Cygwin | x86_64, x86 |
+| MacOS (10.4+) | powerpc |
 | Cosmopolitan Libc | x86_64, aarch64 |
 
 ## Licensing
