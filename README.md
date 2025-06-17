@@ -11,7 +11,7 @@ The current builds target:
 | Operating system | Hardware architecture |
 |-|-|
 | Linux | x86_64, i386, aarch64, riscv64, s390x, powerpc64le, loongarch64 |
-| FreeBSD (14.2, 15.0) | x86_64, aarch64 |
+| FreeBSD (14.2, 14.3, 15.0) | x86_64, aarch64 |
 | NetBSD (10.0, 10.1) | x86_64, aarch64 |
 | OpenBSD (7.6, 7.7) | x86_64, aarch64 |
 | DragonFlyBSD (6.4.0) | x86_64 |
