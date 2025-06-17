@@ -565,11 +565,6 @@ jobs:
         with:
           prerun_copy_from: ./shim
 
-      - name: Ensure bash
-        shell: macppc {0}
-        run: |
-          sudo port -N install bash
-
       - name: Build Blink
         shell: macppc {0}
         run: |
