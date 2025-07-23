@@ -652,14 +652,14 @@ jobs:
           make -j4
 
           # Rename for output
-          cp o/${{ env.blink_mode }}/blink/blink ${{ github.workspace }}/blink-${{ env.blink_distribution }}-haiku${{ matrix.os_version }}-${{ matrix.arch }}
-          cp o/${{ env.blink_mode }}/blink/blinkenlights ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-haiku${{ matrix.os_version }}-${{ matrix.arch }}
+          cp o/${{ env.blink_mode }}/blink/blink ~/blink-${{ env.blink_distribution }}-haiku${{ matrix.os_version }}-${{ matrix.arch }}
+          cp o/${{ env.blink_mode }}/blink/blinkenlights ~/blinkenlights-${{ env.blink_distribution }}-haiku${{ matrix.os_version }}-${{ matrix.arch }}
 
           # Create stripped copy
-          cp ${{ github.workspace }}/blink-${{ env.blink_distribution }}-haiku${{ matrix.os_version }}-${{ matrix.arch }} ${{ github.workspace }}/blink-${{ env.blink_distribution }}-haiku${{ matrix.os_version }}-${{ matrix.arch }}-stripped
-          cp ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-haiku${{ matrix.os_version }}-${{ matrix.arch }} ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-haiku${{ matrix.os_version }}-${{ matrix.arch }}-stripped
-          strip ${{ github.workspace }}/blink-${{ env.blink_distribution }}-haiku${{ matrix.os_version }}-${{ matrix.arch }}-stripped
-          strip ${{ github.workspace }}/blinkenlights-${{ env.blink_distribution }}-haiku${{ matrix.os_version }}-${{ matrix.arch }}-stripped
+          cp ~/blink-${{ env.blink_distribution }}-haiku${{ matrix.os_version }}-${{ matrix.arch }} ~/blink-${{ env.blink_distribution }}-haiku${{ matrix.os_version }}-${{ matrix.arch }}-stripped
+          cp ~/blinkenlights-${{ env.blink_distribution }}-haiku${{ matrix.os_version }}-${{ matrix.arch }} ~/blinkenlights-${{ env.blink_distribution }}-haiku${{ matrix.os_version }}-${{ matrix.arch }}-stripped
+          strip ~/blink-${{ env.blink_distribution }}-haiku${{ matrix.os_version }}-${{ matrix.arch }}-stripped
+          strip ~/blinkenlights-${{ env.blink_distribution }}-haiku${{ matrix.os_version }}-${{ matrix.arch }}-stripped
 
 
       - name: Check Blink
@@ -672,8 +672,8 @@ jobs:
 
       - name: Copy out of VM
         run: |
-          scp user@cross_platform_actions_host:${{ github.workspace }}/blink-* .
-          scp user@cross_platform_actions_host:${{ github.workspace }}/blinkenlights-* .
+          scp user@cross_platform_actions_host:/boot/home/blink-* .
+          scp user@cross_platform_actions_host:/boot/home/blinkenlights-* .
 
       - name: Upload Blink
         uses: actions/upload-artifact@v4
