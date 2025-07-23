@@ -569,6 +569,7 @@ jobs:
         shell: macppc {0}
         run: |
           sudo rm -f /opt/local/lib/libz.*dylib
+          ulimit -u 512
 
           git clone https://github.com/bjia56/blink.git
           cd blink
