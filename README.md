@@ -15,6 +15,7 @@ The current builds target:
 | NetBSD (10.0, 10.1) | x86_64, aarch64 |
 | OpenBSD (7.6, 7.7) | x86_64, aarch64 |
 | DragonFlyBSD (6.4.0) | x86_64 |
+| MidnightBSD (3.2.3) | x86_64 |
 | Solaris (11.4) | x86_64 |
 | Windows Cygwin | x86_64, x86 |
 | MacOS (10.4+) | powerpc |
