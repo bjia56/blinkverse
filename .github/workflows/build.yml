@@ -14,7 +14,7 @@ on:
 env:
   zig_version: 0.14.0
   cosmocc_version: 4.0.2
-  blink_version: midnightbsd
+  blink_version: haiku
   blink_distribution: ${{ inputs.distribution || 'full' }}
   blink_mode: ${{ inputs.distribution != 'full' && inputs.distribution || '' }}
 
@@ -630,6 +630,7 @@ jobs:
         shell: macppc {0}
         run: |
           sudo rm -f /opt/local/lib/libz.*dylib
+          ulimit -u 512
 
           git clone https://github.com/bjia56/blink.git
           cd blink
@@ -671,3 +672,79 @@ jobs:
         with:
           name: blinkenlights-${{ env.blink_distribution }}-macos${{ matrix.os_version }}-${{ matrix.arch }}
           path: blinkenlights-${{ env.blink_distribution }}-macos${{ matrix.os_version }}-${{ matrix.arch }}*
+
+  build_haiku:
+    name: Build Haiku ${{ matrix.os_version }} ${{ matrix.arch }} ${{ inputs.distribution }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x86_64]
+        os_version: ["r1beta5"]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Start VM
+        uses: cross-platform-actions/action@v0.28.0
+        with:
+          operating_system: haiku
+          version: ${{ matrix.os_version }}
+          shutdown_vm: false
+          run: |
+            uname -a
+
+      - name: Install custom shell
+        run: |
+          mkdir -p ~/.local/bin
+          cat > ~/.local/bin/haiku << EOL
+          #!/usr/bin/env sh
+          ssh user@cross_platform_actions_host sh -l<\$1
+          EOL
+          chmod +x ~/.local/bin/haiku
+
+      - name: Build Blink
+        shell: haiku {0}
+        run: |
+          git clone https://github.com/bjia56/blink.git
+          cd blink
+          git checkout ${{ env.blink_version }}
+          ./configure MODE=${{ env.blink_mode }}
+          make -j4
+
+          # Rename for output
+          cp o/${{ env.blink_mode }}/blink/blink ~/blink-${{ env.blink_distribution }}-haiku${{ matrix.os_version }}-${{ matrix.arch }}
+          cp o/${{ env.blink_mode }}/blink/blinkenlights ~/blinkenlights-${{ env.blink_distribution }}-haiku${{ matrix.os_version }}-${{ matrix.arch }}
+
+          # Create stripped copy
+          cp ~/blink-${{ env.blink_distribution }}-haiku${{ matrix.os_version }}-${{ matrix.arch }} ~/blink-${{ env.blink_distribution }}-haiku${{ matrix.os_version }}-${{ matrix.arch }}-stripped
+          cp ~/blinkenlights-${{ env.blink_distribution }}-haiku${{ matrix.os_version }}-${{ matrix.arch }} ~/blinkenlights-${{ env.blink_distribution }}-haiku${{ matrix.os_version }}-${{ matrix.arch }}-stripped
+          strip ~/blink-${{ env.blink_distribution }}-haiku${{ matrix.os_version }}-${{ matrix.arch }}-stripped
+          strip ~/blinkenlights-${{ env.blink_distribution }}-haiku${{ matrix.os_version }}-${{ matrix.arch }}-stripped
+
+
+      - name: Check Blink
+        continue-on-error: true
+        timeout-minutes: 180
+        shell: haiku {0}
+        run: |
+          cd blink
+          make check
+
+      - name: Copy out of VM
+        run: |
+          scp user@cross_platform_actions_host:/boot/home/blink-* .
+          scp user@cross_platform_actions_host:/boot/home/blinkenlights-* .
+
+      - name: Upload Blink
+        uses: actions/upload-artifact@v4
+        with:
+          name: blink-${{ env.blink_distribution }}-haiku${{ matrix.os_version }}-${{ matrix.arch }}
+          path: blink-${{ env.blink_distribution }}-haiku${{ matrix.os_version }}-${{ matrix.arch }}*
+
+      - name: Upload Blinkenlights
+        uses: actions/upload-artifact@v4
+        with:
+          name: blinkenlights-${{ env.blink_distribution }}-haiku${{ matrix.os_version }}-${{ matrix.arch }}
+          path: blinkenlights-${{ env.blink_distribution }}-haiku${{ matrix.os_version }}-${{ matrix.arch }}*
