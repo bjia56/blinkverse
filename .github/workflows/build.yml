@@ -630,6 +630,9 @@ jobs:
         shell: powervs {0}
         run: |
           export PATH=/opt/freeware/bin:$PATH
+          chfs -a size=+1G /var
+          chfs -a size=+2G /opt
+          chfs -a size=+2G /
           dnf install -y git make gcc coreutils
 
       - name: Build Blink
