@@ -660,6 +660,7 @@ jobs:
         timeout-minutes: 180
         shell: powervs {0}
         run: |
+          export PATH=/opt/freeware/bin:$PATH
           cd blink
           gmake check
 
