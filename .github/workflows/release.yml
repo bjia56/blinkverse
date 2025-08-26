@@ -33,6 +33,7 @@ jobs:
   build_artifacts:
     name: Build Artifacts
     uses: ./.github/workflows/build_matrix.yml
+    secrets: inherit
 
   create_release:
     name: Create Release

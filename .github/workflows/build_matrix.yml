@@ -14,3 +14,4 @@ jobs:
     uses: ./.github/workflows/build.yml
     with:
       distribution: ${{ matrix.distribution }}
+    secrets: inherit
