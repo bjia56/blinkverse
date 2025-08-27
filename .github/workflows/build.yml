@@ -635,6 +635,10 @@ jobs:
           chfs -a size=+2G /
           dnf install -y git make gcc coreutils
 
+      - name: Copy to VM
+        run: |
+          scp -r ./shim powervs:/
+
       - name: Build Blink
         shell: powervs {0}
         run: |
@@ -642,7 +646,7 @@ jobs:
           git clone https://github.com/bjia56/blink.git
           cd blink
           git checkout ${{ env.blink_version }}
-          CC=gcc bash ./configure MODE=${{ env.blink_mode }}
+          CC=/shim/gcc bash ./configure MODE=${{ env.blink_mode }}
           gmake -j4
 
           # Rename for output
