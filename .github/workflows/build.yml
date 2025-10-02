@@ -14,7 +14,7 @@ on:
 env:
   zig_version: 0.14.0
   cosmocc_version: 4.0.2
-  blink_version: 16408ad82a250c8962459474c3845ab7b46e0db9
+  blink_version: 0223800fb1ad3cfc46ab372475a95f1a2396ea19
   blink_distribution: ${{ inputs.distribution || 'full' }}
   blink_mode: ${{ inputs.distribution != 'full' && inputs.distribution || '' }}
 
