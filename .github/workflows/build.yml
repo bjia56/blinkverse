@@ -14,7 +14,7 @@ on:
 env:
   zig_version: 0.14.0
   cosmocc_version: 4.0.2
-  blink_version: 23148578d9c84696b97cbf766846a22e35488e25
+  blink_version: debe90508e998907d8272a74d049c1004f51f2c8
   blink_distribution: ${{ inputs.distribution || 'full' }}
   blink_mode: ${{ inputs.distribution != 'full' && inputs.distribution || '' }}
 
@@ -487,6 +487,65 @@ jobs:
         with:
           name: blinkenlights-${{ env.blink_distribution }}-midnightbsd${{ matrix.os_version }}-${{ matrix.arch }}
           path: blinkenlights-${{ env.blink_distribution }}-midnightbsd${{ matrix.os_version }}-${{ matrix.arch }}*
+
+  build_hurd:
+    name: Build GNU/Hurd ${{ matrix.arch }} ${{ inputs.distribution }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x86_64]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Start VM
+        uses: bjia56/hurd-vm@main
+
+      - name: Build Blink
+        shell: hurd {0}
+        run: |
+          git clone https://github.com/bjia56/blink.git
+          cd blink
+          git checkout ${{ env.blink_version }}
+          ./configure MODE=${{ env.blink_mode }}
+          make -j4
+
+          # Rename for output
+          cp o/${{ env.blink_mode }}/blink/blink ~/blink-${{ env.blink_distribution }}-hurd-${{ matrix.arch }}
+          cp o/${{ env.blink_mode }}/blink/blinkenlights ~/blinkenlights-${{ env.blink_distribution }}-hurd-${{ matrix.arch }}
+
+          # Create stripped copy
+          cp ~/blink-${{ env.blink_distribution }}-hurd-${{ matrix.arch }} ~/blink-${{ env.blink_distribution }}-hurd-${{ matrix.arch }}-stripped
+          cp ~/blinkenlights-${{ env.blink_distribution }}-hurd-${{ matrix.arch }} ~/blinkenlights-${{ env.blink_distribution }}-hurd-${{ matrix.arch }}-stripped
+          strip ~/blink-${{ env.blink_distribution }}-hurd-${{ matrix.arch }}-stripped
+          strip ~/blinkenlights-${{ env.blink_distribution }}-hurd-${{ matrix.arch }}-stripped
+
+      - name: Check Blink
+        continue-on-error: true
+        timeout-minutes: 180
+        shell: hurd {0}
+        run: |
+          cd blink
+          make check
+
+      - name: Copy out of VM
+        run: |
+          scp hurd:/root/blink-* .
+          scp hurd:/root/blinkenlights-* .
+
+      - name: Upload Blink
+        uses: actions/upload-artifact@v4
+        with:
+          name: blink-${{ env.blink_distribution }}-hurd-${{ matrix.arch }}
+          path: blink-${{ env.blink_distribution }}-hurd-${{ matrix.arch }}*
+
+      - name: Upload Blinkenlights
+        uses: actions/upload-artifact@v4
+        with:
+          name: blinkenlights-${{ env.blink_distribution }}-hurd-${{ matrix.arch }}
+          path: blinkenlights-${{ env.blink_distribution }}-hurd-${{ matrix.arch }}*
 
   build_dragonflybsd:
     name: Build DragonFlyBSD ${{ matrix.os_version }} ${{ matrix.arch }} ${{ inputs.distribution }}
