@@ -14,7 +14,7 @@ on:
 env:
   zig_version: 0.14.0
   cosmocc_version: 4.0.2
-  blink_version: debe90508e998907d8272a74d049c1004f51f2c8
+  blink_version: 16408ad82a250c8962459474c3845ab7b46e0db9
   blink_distribution: ${{ inputs.distribution || 'full' }}
   blink_mode: ${{ inputs.distribution != 'full' && inputs.distribution || '' }}
 
@@ -902,3 +902,4 @@ jobs:
         with:
           name: blinkenlights-${{ env.blink_distribution }}-haiku${{ matrix.os_version }}-${{ matrix.arch }}
           path: blinkenlights-${{ env.blink_distribution }}-haiku${{ matrix.os_version }}-${{ matrix.arch }}*
+
