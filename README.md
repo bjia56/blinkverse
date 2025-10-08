@@ -10,7 +10,7 @@ The current builds target:
 
 | Operating system | Hardware architecture |
 |-|-|
-| Linux | x86_64, i386, aarch64, riscv64, s390x, powerpc64le, loongarch64 |
+| Linux | x86_64, i386, aarch64, armv7l, riscv64, s390x, powerpc64le, loongarch64 |
 | FreeBSD (14.2, 14.3) | x86_64, aarch64 |
 | NetBSD (10.0, 10.1) | x86_64, aarch64 |
 | OpenBSD (7.6, 7.7) | x86_64, aarch64 |
@@ -20,6 +20,7 @@ The current builds target:
 | AIX (7.2) | powerpc |
 | Windows Cygwin | x86_64, x86 |
 | MacOS (10.4) | powerpc |
+| GNU/Hurd | x86_64 |
 | Cosmopolitan Libc | x86_64, aarch64 |
 
 ## Licensing
